@@ -1,8 +1,13 @@
 import cv2
 from tensorflow.keras.models import load_model
+#from tensorflow.compat.v1 import ConfigProto, InteractiveSession
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+
+"""config=ConfigProto()
+config.gpu_options.allow_growth = True
+session=InteractiveSession(config=config)"""
 
 class detector:
     def __init__(self, model_name='cnn.h5'):

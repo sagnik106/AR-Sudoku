@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import sudoku as sudoku
+from eyes import detector
 
 red=(0,0,255)
 
@@ -78,8 +80,8 @@ def get_coordinates(contours):
     #return contours[1]
 
 
-
-im = cv2.imread('scanned_im.jpg')
+d=detector()
+im = cv2.imread('test.jpeg')
 im=cv2.resize(im, (400,400))
 im1=np.ones((len(im),len(im[1])))
 
@@ -98,6 +100,30 @@ print(corners)
 for i in range(len(corners)):
     cv2.circle(im1, (corners[i][0],corners[i][1]), 2, red, 2)
 img=transform(im, corners)
+
+## Sagnik Code
+
+img=cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+img = cv2.medianBlur(img,5)
+img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
+            cv2.THRESH_BINARY,11,2)
+
+a,tru = d.detect(img)
+p=d.pred(a,tru)
+sol=sudoku.solver(p.reshape((9,9)).tolist())
+sol = ((1-tru).reshape(9, 9)*(np.asarray(sol))).tolist()
+scale = 0.09
+fontScale = min(img.shape[1],img.shape[0])/(25/scale)
+err = int((img.shape[0]//9)*0.17)
+
+for j in range(9):
+    for i in range(9):
+        if sol[j][i]!=0:
+            cv2.putText(img, str(sol[j][i]), ((i)*(img.shape[0]//9)+err, (j+1)*(img.shape[1]//9)-err), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (0,0,0), 2)
+d.disp(a)
+
+## Sagnik Code
+
 cv2.imshow("img",img)
 cv2.waitKey(0)
-img= transform(im, corners)
+cv2.DestroyAllWindows()
